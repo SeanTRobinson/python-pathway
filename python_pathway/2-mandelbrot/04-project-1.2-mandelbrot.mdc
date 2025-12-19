@@ -1,0 +1,550 @@
+# Project 1.2: Mandelbrot Set Explorer - Detailed Guidance
+
+## Project Overview
+
+Build a Mandelbrot set visualizer that generates beautiful fractal images. This project teaches NumPy array operations, complex number arithmetic, image processing, and performance optimization - all critical skills for numerical computing and data science.
+
+## Learning Objectives
+
+### Python Concepts
+- **Complex Numbers**: Native complex type in Python
+- **NumPy Broadcasting**: Vectorized operations on arrays
+- **Command-line Arguments**: argparse for CLI interfaces
+- **Dataclasses**: Configuration management
+- **F-strings**: Advanced string formatting
+- **Context Managers**: Resource management with Pillow
+- **Generator Expressions**: Memory-efficient iteration
+
+### Libraries to Learn
+- **NumPy**: Array creation, meshgrid, vectorized operations, dtypes
+- **Pillow (PIL)**: Image creation, color mapping, saving files
+- **argparse**: Building command-line interfaces
+- **dataclasses**: Structured configuration objects
+- **typing**: Complex type hints (NDArray, etc.)
+
+### Performance Concepts
+- **Vectorization**: NumPy vs pure Python loops
+- **Algorithm Complexity**: Iteration depth tradeoffs
+- **Profiling**: Using cProfile and line_profiler
+- **Memory Management**: Array dtypes and memory usage
+
+### Mathematical Concepts
+- **Mandelbrot Set**: z(n+1) = z(n)² + c
+- **Complex Plane**: Mapping pixels to complex numbers
+- **Escape Time Algorithm**: Determining set membership
+- **Coordinate Transformations**: Screen space to mathematical space
+
+## The Mandelbrot Set
+
+### Mathematics
+For each complex number `c = x + yi`:
+- Start with `z₀ = 0`
+- Iterate: `z(n+1) = z(n)² + c`
+- If `|z|` stays bounded after many iterations, `c` is in the set
+- Color based on how quickly it escapes (or if it doesn't)
+
+### Visualization
+- X-axis: Real part of c
+- Y-axis: Imaginary part of c
+- Color: Number of iterations before escape
+- Classic view: Real ∈ [-2.5, 1.0], Imaginary ∈ [-1.0, 1.0]
+
+## Implementation Approach
+
+### Phase 1: Simple Python Implementation
+
+**Goal**: Get it working first, optimize later.
+
+```python
+def mandelbrot_pixel(c: complex, max_iter: int) -> int:
+    """
+    Calculate iterations for a single point.
+    Returns: number of iterations before escape (or max_iter).
+    """
+    z = 0
+    for n in range(max_iter):
+        if abs(z) > 2:
+            return n
+        z = z*z + c
+    return max_iter
+```
+
+**What to Consider**:
+- How do you map pixel coordinates (x, y) to complex numbers (real, imag)?
+- How do you iterate over all pixels?
+- How do you convert iteration counts to colors?
+
+### Phase 2: NumPy Vectorized Implementation
+
+**Goal**: 100x speedup using vectorized operations.
+
+**Key NumPy Functions**:
+```python
+import numpy as np
+
+# Create coordinate grids
+real = np.linspace(-2.5, 1.0, width)
+imag = np.linspace(-1.0, 1.0, height)
+real_grid, imag_grid = np.meshgrid(real, imag)
+
+# Create complex grid
+c = real_grid + 1j * imag_grid
+
+# Vectorized computation (fill this in!)
+# All pixels calculated at once
+```
+
+**What to Consider**:
+- How to track which points have escaped?
+- How to update only points that haven't escaped?
+- Using boolean masks for conditional updates
+
+### Phase 3: Image Generation
+
+**Libraries to Use**:
+```python
+from PIL import Image
+import numpy as np
+```
+
+**Color Mapping Approaches**:
+1. **Grayscale**: Simple iteration count mapping
+2. **Color Gradient**: Interpolate between colors
+3. **Logarithmic**: Better dynamic range
+4. **Histogram Equalization**: Enhance contrast
+
+**What to Consider**:
+```python
+# iterations is a 2D array of iteration counts
+# How do you convert to RGB image?
+
+# Option 1: Direct mapping
+image_array = (iterations * 255 / max_iter).astype(np.uint8)
+
+# Option 2: Color palette
+# Map iteration counts to a color palette
+
+# Create PIL Image
+image = Image.fromarray(image_array, mode='L')  # Grayscale
+image = Image.fromarray(image_array, mode='RGB')  # Color
+```
+
+### Phase 4: Command-Line Interface
+
+**Using argparse**:
+```python
+import argparse
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Generate Mandelbrot set images'
+    )
+    parser.add_argument(
+        '--width', type=int, default=800,
+        help='Image width in pixels'
+    )
+    # Add more arguments...
+    return parser.parse_args()
+```
+
+**Arguments to Support**:
+- `--width`, `--height`: Image dimensions
+- `--max-iter`: Maximum iterations
+- `--center`: Center point (real, imag)
+- `--zoom`: Zoom level
+- `--output`: Output filename
+- `--colorscheme`: Color palette choice
+- `--benchmark`: Show timing information
+
+## Python Features to Explore
+
+### Complex Numbers
+```python
+# Python has native complex number support
+c = 2 + 3j  # or complex(2, 3)
+c.real  # 2.0
+c.imag  # 3.0
+abs(c)  # magnitude: sqrt(2² + 3²)
+c * c   # complex multiplication
+
+# NumPy works seamlessly with complex arrays
+arr = np.array([1+2j, 3+4j])
+arr * arr  # Element-wise complex multiplication
+```
+
+### NumPy Broadcasting
+```python
+# Broadcasting allows operations on different shaped arrays
+# Example: Adding a 1D array to each row of 2D array
+matrix = np.array([[1, 2, 3],
+                   [4, 5, 6]])
+vector = np.array([10, 20, 30])
+result = matrix + vector  # Broadcasts vector to each row
+
+# In Mandelbrot: update all pixels at once
+z = np.zeros_like(c)  # Same shape as c
+mask = np.ones(c.shape, dtype=bool)  # Track which points active
+
+# Update only active points
+z[mask] = z[mask]**2 + c[mask]
+```
+
+### Dataclasses for Configuration
+```python
+from dataclasses import dataclass
+from typing import Tuple
+
+@dataclass
+class MandelbrotConfig:
+    """Configuration for Mandelbrot generation."""
+    width: int = 800
+    height: int = 600
+    max_iter: int = 256
+    center: complex = -0.5 + 0j
+    zoom: float = 1.0
+    
+    @property
+    def bounds(self) -> Tuple[float, float, float, float]:
+        """Calculate real/imag bounds from center and zoom."""
+        # Calculate and return (real_min, real_max, imag_min, imag_max)
+        pass
+```
+
+### Type Hints with NumPy
+```python
+from typing import Tuple
+import numpy as np
+from numpy.typing import NDArray
+
+def generate_mandelbrot(
+    config: MandelbrotConfig
+) -> NDArray[np.uint8]:
+    """
+    Generate Mandelbrot set image.
+    
+    Returns:
+        2D array of iteration counts as uint8.
+    """
+    pass
+
+def complex_grid(
+    real_range: Tuple[float, float],
+    imag_range: Tuple[float, float],
+    shape: Tuple[int, int]
+) -> NDArray[np.complex128]:
+    """Create complex number grid."""
+    pass
+```
+
+## Algorithm Implementations
+
+### Escape Time Algorithm (Vectorized)
+
+```python
+def mandelbrot_vectorized(
+    c: NDArray[np.complex128],
+    max_iter: int
+) -> NDArray[np.int32]:
+    """
+    Vectorized Mandelbrot calculation.
+    
+    Args:
+        c: Complex grid of c values
+        max_iter: Maximum iterations
+        
+    Returns:
+        Array of iteration counts
+    """
+    # Initialize
+    z = np.zeros_like(c)
+    iterations = np.zeros(c.shape, dtype=np.int32)
+    
+    # Mask for points that haven't escaped
+    mask = np.ones(c.shape, dtype=bool)
+    
+    # Iterate
+    for i in range(max_iter):
+        # Update only points that haven't escaped
+        # z[mask] = ...
+        # Check for escape: |z| > 2
+        # escaped = ...
+        # Update iterations and mask
+        pass
+    
+    return iterations
+```
+
+**Key Questions**:
+- How do you check if `|z| > 2` for all points at once?
+- How do you update only the points that haven't escaped?
+- When can you stop iterating early?
+
+### Coordinate Transformation
+
+```python
+def pixel_to_complex(
+    pixel_x: int,
+    pixel_y: int,
+    width: int,
+    height: int,
+    center: complex,
+    zoom: float
+) -> complex:
+    """
+    Convert pixel coordinates to complex number.
+    
+    Standard view: real ∈ [-2.5, 1.0], imag ∈ [-1.0, 1.0]
+    With zoom: range shrinks by zoom factor
+    """
+    # Default ranges
+    default_width = 3.5  # -2.5 to 1.0
+    default_height = 2.0  # -1.0 to 1.0
+    
+    # Zoomed ranges
+    real_range = default_width / zoom
+    imag_range = default_height / zoom
+    
+    # Map pixel to complex number
+    # Think about: 
+    # - Center of image should map to 'center'
+    # - Edges should be at ±range/2 from center
+    pass
+```
+
+## Color Schemes
+
+### Grayscale
+```python
+def grayscale_colormap(iterations: NDArray, max_iter: int) -> NDArray:
+    """Map iterations to grayscale values."""
+    return (iterations * 255 / max_iter).astype(np.uint8)
+```
+
+### Custom Color Palettes
+```python
+def rgb_colormap(iterations: NDArray, max_iter: int) -> NDArray:
+    """Map iterations to RGB colors."""
+    # Normalize to [0, 1]
+    normalized = iterations / max_iter
+    
+    # Example: Blue -> Cyan -> White
+    rgb = np.zeros((*iterations.shape, 3), dtype=np.uint8)
+    rgb[..., 0] = (normalized * 255).astype(np.uint8)  # Red
+    rgb[..., 1] = (normalized * 255).astype(np.uint8)  # Green
+    rgb[..., 2] = 255  # Blue
+    
+    return rgb
+```
+
+### Logarithmic Scaling
+```python
+def log_colormap(iterations: NDArray, max_iter: int) -> NDArray:
+    """Logarithmic color scaling for better detail."""
+    # Avoid log(0)
+    iterations = iterations + 1
+    log_iter = np.log(iterations)
+    log_max = np.log(max_iter + 1)
+    return (log_iter * 255 / log_max).astype(np.uint8)
+```
+
+## Testing Strategy
+
+### Unit Tests
+
+**Test Coordinate Transformation**:
+```python
+def test_pixel_to_complex_center():
+    # Center pixel should map to center complex number
+    config = MandelbrotConfig(width=100, height=100, center=0+0j)
+    c = pixel_to_complex(50, 50, config)
+    assert abs(c - (0+0j)) < 1e-10
+
+def test_pixel_to_complex_zoom():
+    # Zoom should scale the visible range
+    # Test that zooming in reduces coordinate range
+    pass
+```
+
+**Test Mandelbrot Calculation**:
+```python
+def test_mandelbrot_origin():
+    # c = 0 is in the set (never escapes)
+    result = mandelbrot_pixel(0+0j, max_iter=100)
+    assert result == 100
+
+def test_mandelbrot_outside():
+    # c = 2 escapes immediately
+    result = mandelbrot_pixel(2+0j, max_iter=100)
+    assert result < 5
+```
+
+**Test Known Points**:
+```python
+# These points are known to be in/out of the set
+IN_SET = [0+0j, -1+0j, 0.25+0j]
+OUT_SET = [2+0j, 1+1j, -2+2j]
+
+@pytest.mark.parametrize("c", IN_SET)
+def test_points_in_set(c):
+    result = mandelbrot_pixel(c, max_iter=256)
+    assert result == 256  # Didn't escape
+
+@pytest.mark.parametrize("c", OUT_SET)  
+def test_points_outside_set(c):
+    result = mandelbrot_pixel(c, max_iter=256)
+    assert result < 256  # Escaped
+```
+
+## Performance Optimization
+
+### Profiling
+```python
+# Profile your code
+import cProfile
+import pstats
+
+profiler = cProfile.Profile()
+profiler.enable()
+
+# Your Mandelbrot generation here
+generate_mandelbrot(config)
+
+profiler.disable()
+stats = pstats.Stats(profiler)
+stats.sort_stats('cumulative')
+stats.print_stats(10)
+```
+
+### Benchmarking Different Approaches
+
+```python
+import time
+
+def benchmark(func, *args, iterations=5):
+    """Time a function over multiple runs."""
+    times = []
+    for _ in range(iterations):
+        start = time.perf_counter()
+        func(*args)
+        end = time.perf_counter()
+        times.append(end - start)
+    
+    avg = sum(times) / len(times)
+    print(f"{func.__name__}: {avg:.4f}s (avg of {iterations} runs)")
+    return avg
+```
+
+**Compare Implementations**:
+- Pure Python loops vs NumPy vectorized
+- Different max_iter values
+- Different image sizes
+- Different dtypes (complex64 vs complex128)
+
+## Suggested Project Structure
+
+```
+mandelbrot/
+├── mandelbrot/
+│   ├── __init__.py
+│   ├── core.py           # Mandelbrot calculation
+│   ├── colormap.py       # Color mapping functions
+│   ├── config.py         # Configuration dataclass
+│   └── utils.py          # Coordinate transformations
+├── tests/
+│   ├── test_core.py
+│   ├── test_colormap.py
+│   └── test_utils.py
+├── main.py               # CLI entry point
+├── requirements.txt
+└── README.md
+```
+
+## Code Quality Checklist
+
+- [ ] Type hints on all functions
+- [ ] Docstrings with parameter descriptions
+- [ ] No magic numbers (use named constants)
+- [ ] Configuration via dataclass
+- [ ] argparse for CLI with helpful descriptions
+- [ ] Tests for coordinate transforms
+- [ ] Tests for known Mandelbrot points
+- [ ] Performance benchmark included
+- [ ] README with example commands
+- [ ] Sample output images included
+
+## Stretch Goals
+
+1. **Interactive Zoom**: Click to zoom in on a region
+2. **Animation**: Generate zoom sequence as video
+3. **Julia Sets**: Implement related fractals
+4. **GPU Acceleration**: Use CuPy for GPU computation
+5. **Smooth Coloring**: Implement continuous coloring algorithm
+6. **Parallel Processing**: Use multiprocessing for tiles
+7. **Deep Zoom**: Arbitrary precision with mpmath
+
+## Common Pitfalls
+
+**Memory Issues**:
+```python
+# Be careful with large images
+# A 4000x4000 image with complex128 is ~128MB
+# Use appropriate dtypes:
+# - complex64 for smaller memory footprint
+# - complex128 for precision
+```
+
+**Integer Overflow**:
+```python
+# Don't use uint8 for iteration counts if max_iter > 255
+# Use int32 or int64 for iteration arrays
+```
+
+**Coordinate Mapping Errors**:
+```python
+# Common mistake: forgetting to center the image
+# The mathematical center isn't always pixel center
+# Account for aspect ratio if width ≠ height
+```
+
+## Example CLI Usage
+
+```bash
+# Basic usage
+python main.py --width 1920 --height 1080 --output mandelbrot.png
+
+# Zoom into interesting region
+python main.py --center -0.7 0.27i --zoom 100 --max-iter 512
+
+# Different color scheme
+python main.py --colorscheme rainbow --output colorful.png
+
+# Show benchmark
+python main.py --benchmark
+```
+
+## Resources
+
+**NumPy Documentation**:
+- Array creation: https://numpy.org/doc/stable/reference/routines.array-creation.html
+- Broadcasting: https://numpy.org/doc/stable/user/basics.broadcasting.html
+- meshgrid: https://numpy.org/doc/stable/reference/generated/numpy.meshgrid.html
+
+**Pillow Documentation**:
+- Image modes: https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes
+- Image creation: https://pillow.readthedocs.io/en/stable/reference/Image.html
+
+**Mandelbrot Set**:
+- Wikipedia: https://en.wikipedia.org/wiki/Mandelbrot_set
+- Coloring algorithms: https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set
+
+## Ready to Start?
+
+1. Set up project structure
+2. Install dependencies: `pip install numpy pillow pytest mypy`
+3. Start with simple Python implementation
+4. Verify correctness with known points
+5. Optimize with NumPy vectorization
+6. Add CLI and color schemes
+7. Request review when complete
+
+This project will cement your NumPy skills and give you beautiful outputs to show for it. Have fun exploring the infinite complexity of the Mandelbrot set! 🌀

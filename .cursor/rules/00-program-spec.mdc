@@ -1,0 +1,154 @@
+# Python AI Engineering Learning Program - Master Specification
+
+## Program Overview
+
+This is a project-based learning program designed for an experienced engineer transitioning to Python and AI engineering. The learner has extensive engineering knowledge including data science (R), and commercial experience in Objective-C, C++, Ruby, Python, and Java, though not recent Python work.
+
+## Learning Philosophy
+
+- **Learn by doing**: Every concept is taught through building something tangible
+- **Visual feedback**: Projects produce visible, interactive results
+- **Progressive complexity**: Each project builds on previous knowledge
+- **Real-world relevance**: All projects connect to AI engineering applications
+- **Code review focus**: Learning is reinforced through detailed feedback and iteration
+
+## Program Structure
+
+### Phase 1: Python Fundamentals Through Visualization (2-3 weeks)
+Focus: Modern Python syntax, idioms, and core libraries through visual projects
+
+### Phase 2: ML Foundations with Games (4-6 weeks)
+Focus: Machine learning basics, neural networks, and reinforcement learning through interactive applications
+
+### Phase 3: Modern AI Engineering (6-8 weeks)
+Focus: LLMs, agents, RAG systems, and production AI engineering
+
+## Technical Stack
+
+### Core Python
+- Python 3.11+ (modern syntax including match statements, type hints, dataclasses)
+- Virtual environments (venv or uv)
+- Modern package management (pip, requirements.txt, optionally pyproject.toml)
+
+### Phase 1 Libraries
+- pygame: Interactive graphics and game development
+- NumPy: Array operations and numerical computing
+- Matplotlib/Pillow: Visualization and image processing
+
+### Phase 2 Libraries
+- PyTorch: Deep learning framework
+- stable-baselines3: Reinforcement learning
+- OpenCV: Computer vision
+- transformers: NLP and language models
+- scikit-learn: Traditional ML algorithms
+
+### Phase 3 Libraries
+- LangChain/LangGraph: LLM orchestration and agents
+- ChromaDB/Pinecone: Vector databases
+- Streamlit/Gradio: Web interfaces for ML
+- FastAPI: Production APIs
+- Weights & Biases: Experiment tracking
+
+## Code Quality Standards
+
+### Python Style
+- Follow PEP 8 style guide
+- Use type hints throughout (PEP 484)
+- Prefer dataclasses over dictionaries for structured data
+- Use f-strings for string formatting
+- Leverage comprehensions appropriately (don't sacrifice readability)
+- Use context managers (with statements) for resource management
+
+### Code Organization
+- Modular design with clear separation of concerns
+- Meaningful variable and function names
+- Docstrings for all public functions and classes (Google or NumPy style)
+- Keep functions focused and under 50 lines where possible
+- Use pathlib for file operations, not os.path
+
+### Modern Python Idioms
+- Use generators for memory efficiency
+- Leverage itertools and functools
+- Use enumerate() and zip() over range(len())
+- Prefer match statements over long if/elif chains (Python 3.10+)
+- Use | operator for dictionary merging (Python 3.9+)
+- Use structural pattern matching where appropriate
+
+### Testing & Documentation
+- Write unit tests using pytest
+- Aim for >80% code coverage on core logic
+- Document assumptions and design decisions in code comments
+- Include README.md with setup instructions and project overview
+
+## Project Completion Criteria
+
+Each project is considered complete when:
+
+1. **Functionality**: Core requirements are implemented and working
+2. **Code Quality**: Passes pylint/ruff with minimal warnings
+3. **Type Safety**: mypy checks pass with strict mode
+4. **Testing**: Unit tests written and passing with good coverage
+5. **Documentation**: Code is well-documented with clear README
+6. **Review**: Mentor review completed with all feedback addressed
+
+## Learning Objectives Tracking
+
+For each project, explicitly identify:
+- **Python Concepts**: Language features being learned
+- **Libraries**: New libraries and their key functions
+- **Patterns**: Design patterns and architectural approaches
+- **AI Concepts**: ML/AI theory being applied
+- **Skills**: Practical engineering skills developed
+
+## Progress Assessment
+
+After each phase:
+- **Self-assessment**: What concepts feel solid vs. need reinforcement?
+- **Code review**: Comprehensive feedback on all projects in phase
+- **Capstone challenge**: Small timed challenge to apply learned concepts
+- **Reflection**: Update learning approach based on what worked
+
+## Resources Integration
+
+### DataCamp
+- Use as reference material, not linear curriculum
+- Focus on: NumPy, Pandas, scikit-learn, PyTorch courses
+- Complete specific modules when projects require those skills
+
+### Cursor AI
+- Use for pair programming and explanation
+- Request reviews against Python best practices
+- Ask for alternative implementations to learn multiple approaches
+
+### Community Resources
+- FastAI course and forums for deep learning
+- Real Python tutorials for Python-specific topics
+- Hugging Face documentation for transformers
+- Python Discord and r/learnpython for questions
+
+## Success Metrics
+
+By program completion, you should be able to:
+- Write idiomatic, type-safe Python that feels natural
+- Build and train neural networks from scratch and with frameworks
+- Implement and deploy RAG systems and AI agents
+- Debug and optimize Python applications effectively
+- Read and contribute to professional Python codebases
+- Understand modern AI engineering architecture and practices
+
+## Time Commitment
+
+- **Recommended pace**: 10-15 hours per week
+- **Total duration**: 12-17 weeks
+- **Project time**: 80% of time spent coding
+- **Review/learning**: 20% of time on feedback, reading, research
+
+## Adaptation Guidelines
+
+This program should flex based on your progress:
+- Skip or speed through concepts you already know well
+- Spend extra time on areas that feel challenging
+- Add additional projects if you want deeper practice in an area
+- Modify project requirements to align with interests
+
+The goal is mastery, not completion speed. Take the time needed to internalize concepts and build excellent code.

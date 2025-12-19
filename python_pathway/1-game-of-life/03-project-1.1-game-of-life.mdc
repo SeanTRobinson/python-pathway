@@ -1,0 +1,387 @@
+# Project 1.1: Conway's Game of Life - Detailed Guidance
+
+## Project Overview
+
+Build a visual implementation of Conway's Game of Life, a cellular automaton that demonstrates how complex patterns emerge from simple rules. This project introduces core Python syntax, object-oriented programming, and basic visualization.
+
+## Learning Objectives
+
+### Python Concepts
+- **Classes and Objects**: Design a Grid class and possibly a Cell class
+- **Methods**: Instance methods, class methods, static methods
+- **List Comprehensions**: For efficient grid operations
+- **Type Hints**: Function signatures and return types
+- **Dunder Methods**: `__init__`, `__repr__`, `__str__`
+- **Properties**: Using @property decorator
+
+### Libraries to Learn
+- **pygame**: Basic window management, event handling, drawing primitives
+- **typing**: Type hints (List, Tuple, Optional, etc.)
+- **dataclasses**: (Optional) For configuration objects
+
+### Design Patterns
+- **Separation of Concerns**: Game logic separate from rendering
+- **Encapsulation**: Grid state management
+- **Single Responsibility**: Each class/function has one clear purpose
+
+### Testing Concepts
+- **pytest basics**: Writing test functions
+- **Fixtures**: Setting up test data
+- **Parametrized tests**: Testing multiple cases
+- **Edge cases**: Empty grids, boundary conditions
+
+## The Game of Life Rules
+
+A cell is either alive (1) or dead (0). Each generation:
+1. **Underpopulation**: A live cell with <2 live neighbors dies
+2. **Survival**: A live cell with 2-3 live neighbors lives
+3. **Overpopulation**: A live cell with >3 live neighbors dies
+4. **Reproduction**: A dead cell with exactly 3 live neighbors becomes alive
+
+## Implementation Approach
+
+### Phase 1: Core Logic (No Graphics)
+Start with pure Python logic - don't touch pygame yet.
+
+**Suggested Structure**:
+```
+game_of_life/
+├── grid.py          # Grid class with game logic
+├── test_grid.py     # Unit tests
+└── patterns.py      # Common starting patterns
+```
+
+**Key Components**:
+
+1. **Grid Class**
+   - Store current state (2D structure - consider list of lists or NumPy array)
+   - Calculate next state based on rules
+   - Count live neighbors for any cell
+   - Handle edge cases (cells on boundaries)
+
+2. **Pattern Loading**
+   - Define classic patterns: glider, blinker, toad, beacon
+   - Method to place pattern at specific coordinates
+   - Consider using coordinates (row, col) consistently
+
+### What to Consider
+
+**Data Structure Choice**:
+- List of lists: `[[0,1,0], [1,1,0], [0,0,1]]`
+- Pros: Simple, Pythonic
+- Cons: Verbose for neighbor checking
+
+**Neighbor Counting**:
+```python
+# You need to check 8 neighbors around cell (row, col)
+# Offsets: (-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)
+# How can you iterate through these elegantly?
+# What happens at grid boundaries?
+```
+
+**State Updates**:
+```python
+# Important: Calculate ALL new states before updating
+# (Simultaneous update, not sequential)
+# Create new grid, don't modify current one during calculation
+```
+
+### Phase 2: Visualization
+
+**Libraries to Use**:
+```python
+import pygame
+import sys
+```
+
+**Suggested Structure**:
+```python
+# main.py
+from grid import Grid
+
+def main():
+    # Initialize pygame
+    # Create game grid
+    # Main game loop:
+    #   - Handle events (quit, pause, step)
+    #   - Update grid
+    #   - Draw grid
+    #   - Control frame rate
+```
+
+**pygame Concepts to Learn**:
+- `pygame.init()`: Initialize pygame
+- `pygame.display.set_mode()`: Create window
+- `pygame.draw.rect()`: Draw filled rectangles (cells)
+- `pygame.time.Clock()`: Control frame rate
+- `pygame.event.get()`: Handle keyboard/mouse input
+- `pygame.QUIT`: Detect window close
+
+### What to Consider
+
+**Display Configuration**:
+```python
+# Window size, grid size, cell size relationship
+# If grid is 50x50 and each cell is 10 pixels:
+#   Window needs to be 500x500 pixels
+# Make these configurable!
+```
+
+**Colors**:
+```python
+# Define color constants
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GRAY = (128, 128, 128)
+# Consider: background color, live cell color, dead cell color, grid lines?
+```
+
+**Controls**:
+- Space bar: Pause/unpause
+- S key: Single step (when paused)
+- R key: Randomize grid
+- C key: Clear grid
+- ESC: Quit
+
+## Python Features to Explore
+
+### List Comprehensions
+```python
+# Creating a 2D grid
+grid = [[0 for _ in range(width)] for _ in range(height)]
+
+# Counting live neighbors (part of solution)
+# Think about how to use sum() with a comprehension
+```
+
+### Type Hints
+```python
+from typing import List, Tuple
+
+def get_neighbors(row: int, col: int) -> List[Tuple[int, int]]:
+    """Return list of (row, col) tuples for valid neighbors."""
+    pass
+
+def count_live_neighbors(self, row: int, col: int) -> int:
+    """Count how many neighbors of this cell are alive."""
+    pass
+```
+
+### Properties
+```python
+class Grid:
+    def __init__(self, width: int, height: int):
+        self._width = width
+        self._height = height
+    
+    @property
+    def width(self) -> int:
+        """Grid width (read-only)."""
+        return self._width
+    
+    # Why use properties instead of direct attribute access?
+```
+
+### Dataclasses (Optional Enhancement)
+```python
+from dataclasses import dataclass
+
+@dataclass
+class GameConfig:
+    grid_width: int = 50
+    grid_height: int = 50
+    cell_size: int = 10
+    fps: int = 10
+```
+
+## Testing Strategy
+
+### Unit Tests to Write
+
+**Test Grid Creation**:
+```python
+def test_grid_initialization():
+    grid = Grid(10, 10)
+    assert grid.width == 10
+    assert grid.height == 10
+    # Test that grid is initially all dead cells
+```
+
+**Test Neighbor Counting**:
+```python
+def test_count_neighbors_middle():
+    # Set up a known pattern
+    # Count neighbors of middle cell
+    # Assert expected count
+
+def test_count_neighbors_edge():
+    # Test cells on edges
+    # Make sure no index errors
+
+def test_count_neighbors_corner():
+    # Corner cells have only 3 neighbors
+    # Test all four corners
+```
+
+**Test Game Rules**:
+```python
+def test_underpopulation():
+    # Live cell with 0-1 neighbors should die
+    
+def test_survival():
+    # Live cell with 2-3 neighbors should live
+
+def test_overpopulation():
+    # Live cell with 4+ neighbors should die
+    
+def test_reproduction():
+    # Dead cell with exactly 3 neighbors should become alive
+```
+
+**Test Known Patterns**:
+```python
+def test_blinker_oscillates():
+    # Set up blinker pattern
+    # Step once
+    # Verify it's in second state
+    # Step again
+    # Verify it's back to first state
+```
+
+## Common Patterns to Implement
+
+### Still Lifes (Don't change)
+- **Block**: 2x2 square of live cells
+- **Beehive**: Hexagonal shape
+
+### Oscillators (Repeat with period)
+- **Blinker**: Period 2 (horizontal line ↔ vertical line)
+- **Toad**: Period 2
+- **Beacon**: Period 2
+
+### Spaceships (Move across grid)
+- **Glider**: Moves diagonally, period 4
+
+### Pattern Loading
+```python
+# Consider representing patterns as lists of (row, col) tuples
+# or as small 2D arrays
+
+GLIDER = [
+    (0, 1),
+    (1, 2),
+    (2, 0),
+    (2, 1),
+    (2, 2)
+]
+
+# How would you place this pattern at arbitrary position (x, y)?
+```
+
+## Code Quality Checklist
+
+Before requesting review:
+
+- [ ] All functions have type hints
+- [ ] All public methods have docstrings
+- [ ] Code passes `mypy --strict`
+- [ ] No `# type: ignore` comments
+- [ ] Variable names are descriptive (no `x`, `y`, `tmp`)
+- [ ] Functions are <50 lines
+- [ ] No repeated code (DRY principle)
+- [ ] Grid logic has zero pygame dependencies
+- [ ] All tests pass
+- [ ] Test coverage >80% on grid logic
+
+## Stretch Goals
+
+Once basic implementation works:
+
+1. **Performance**: Profile with cProfile, optimize slow parts
+2. **Larger Grids**: Use NumPy for better performance with big grids
+3. **Infinite Grid**: Implement wrapping (toroidal topology)
+4. **Pattern Library**: Load patterns from files
+5. **Drawing Mode**: Click to toggle cells while paused
+6. **Speed Control**: Adjust simulation speed with +/- keys
+7. **Generation Counter**: Display current generation number
+
+## Common Pitfalls to Avoid
+
+**Simultaneous vs Sequential Update**:
+```python
+# WRONG - modifies grid during calculation
+for row in range(height):
+    for col in range(width):
+        neighbors = count_neighbors(row, col)
+        if should_die(neighbors):
+            grid[row][col] = 0  # Changes affect later calculations!
+
+# RIGHT - calculate all changes first, then apply
+new_grid = calculate_next_state(current_grid)
+current_grid = new_grid
+```
+
+**Index Errors at Boundaries**:
+```python
+# Make sure neighbor checking doesn't go out of bounds
+# Options: 
+# 1. Check bounds before accessing (if 0 <= row < height)
+# 2. Use modulo for wrapping (row % height)
+# 3. Pad grid with dead cells
+```
+
+**pygame Performance**:
+```python
+# SLOW - redraws everything every frame
+for row in range(height):
+    for col in range(width):
+        draw_cell(row, col)
+
+# FASTER - only draw changed cells (advanced)
+# Or draw to surface once, blit to screen
+```
+
+## Resources
+
+**Python Documentation**:
+- Type hints: https://docs.python.org/3/library/typing.html
+- List comprehensions: https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
+- Classes: https://docs.python.org/3/tutorial/classes.html
+
+**pygame Documentation**:
+- Getting Started: https://www.pygame.org/docs/tut/PygameIntro.html
+- Drawing: https://www.pygame.org/docs/ref/draw.html
+- Events: https://www.pygame.org/docs/ref/event.html
+
+**Game of Life**:
+- Rules and patterns: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
+- Pattern library: https://www.conwaylife.com/wiki/
+
+## Estimation and Planning
+
+**Recommended Time Breakdown**:
+- Setup and learning (1 hour)
+- Core grid logic (2 hours)
+- Unit tests (1 hour)
+- pygame visualization (1.5 hours)
+- Pattern implementation (0.5 hours)
+- Refinement and review prep (1 hour)
+
+**Milestones**:
+1. Grid class with neighbor counting - working and tested
+2. State transition logic - passes all rule tests
+3. Basic pygame window with static grid display
+4. Animation working with pause/play
+5. Pattern loading and controls implemented
+
+## Ready to Start?
+
+1. Create project directory and virtual environment
+2. Install dependencies: `pip install pygame pytest mypy`
+3. Start with `grid.py` and `test_grid.py`
+4. Get core logic working before adding graphics
+5. Request mentor review when you have a working implementation
+
+Remember: This is your first project. Focus on writing clear, well-tested code rather than clever optimizations. The goal is to internalize Python syntax and good practices.
+
+Good luck! 🎮
